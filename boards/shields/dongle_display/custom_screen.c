@@ -30,7 +30,7 @@ static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 struct status_state {
     char batteries[ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
     char top_layer[12] = "\0";
-    char active_mods[44] = "\0";
+    char active_mods[4][6];
 };
 
 struct zmk_widget_screen {
@@ -42,37 +42,65 @@ struct zmk_widget_screen {
 
 
 // draw canvas
+void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font, lv_text_align_t align) {
+    lv_draw_label_dsc_init(label_dsc);
+    label_dsc->color = color;
+    label_dsc->font = font;
+    label_dsc->align = align;
+}
 
 static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 0);
-
-    // draw background
-    lv_draw_rect_dsc_t background_dsc;
-    lv_draw_rect_dsc_init(&background_dsc);
-    background_dsc.bg_color = LVGL_BACKGROUND;
-    lv_canvas_draw_rect(canvas, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT, &background_dsc);
     
-    // draw top layer
-
-
-    // draw batteries
+    lv_draw_label_dsc_t layer_label;
     lv_draw_label_dsc_t batteries_label;
-    lv_draw_label_dsc_init(&batteries_label);
-    batteries_label.color = LVGL_FOREGROUND;
-    batteries_label.font = &space_mono_14;
-    batteries_label.align = LV_TEXT_ALIGN_LEFT;
+    lv_draw_label_dsc_t mods_label;
+    init_label_dsc(&mods_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
     
     char batteries_text[ZMK_SPLIT_BLE_PERIPHERAL_COUNT * 9] = {};
     for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
         strcat(batteries_text, state->batteries[i]);
     }
-    lv_canvas_draw_text(canvas, 0, 19, 25, &batteries_label, &batteries_text);
+    
+    
+#if ISENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
+    init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
+    lv_canvas_draw_text(canvas, 0, 7, CANVAS_WIDTH, &layer_label, state->top_layer);
 
-    // draw modifiers
+    init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
+    lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, &batteries_text);
 
+    static char separator[1] = "\n"
+#else
+    init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_RIGHT);
+    lv_canvas_draw_text(canvas, 1, 2, CANVAS_WIDTH / 2 - 4, &layer_label, state->top_layer);
 
-    // Rotate for horizontal display
-    rotate_canvas(canvas, cbuf);
+    init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_LEFT);
+    lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, &batteries_text);
+    
+    static char separator[1] = " "
+#endif
+    
+    char mods_text[30] = {};
+    for (int i = 0; i < 4; i++) {
+        strcat(mods_text, state->active_mods[i]);
+        strcat(mods_text, separator)
+    }
+    lv_canvas_draw_text(canvas, 0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, &mods_label, &mods_text);
+
+#if ISENABLED(CONFIG_DONGLE_DISPLAY_FLIP)
+    static lv_color_t cbuf_tmp[CANVAS_HEIGHT * CANVAS_HEIGHT];
+    memcpy(cbuf_tmp, cbuf, sizeof(cbuf_tmp));
+
+    lv_img_dsc_t img;
+    img.data = (void *)cbuf_tmp;
+    img.header.cf = LV_IMG_CF_TRUE_COLOR;
+    img.header.w = CANVAS_HEIGHT;
+    img.header.h = CANVAS_HEIGHT;
+    // lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
+    lv_canvas_transform(canvas, &img, ROTATION + ORIENTATION, 
+        LV_IMG_ZOOM_NONE, 0, 0, CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2, false);
+#endif
 }
 
 
@@ -104,7 +132,7 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_battery, struct battery, battery_update_cb, b
 ZMK_SUBSCRIPTION(widget_battery, zmk_peripheral_battery_state_changed);
 
 
-// Layer
+// top layer
 struct layer {
     uint8_t index;
     const char *label;
@@ -141,24 +169,24 @@ uint8_t modifiers
 
 static void set_modifiers(lv_obj_t *widget, uint8_t modifiers mods) {
     if (mods & (MOD_LSFT | MOD_RSFT)) {
-        widget->state.active_mods = "SHIFT\n";
+        widget->state.active_mods[0] = "SHIFT";
     } else {
-        widget->state.active_mods = " \n";
+        widget->state.active_mods[0] = "     ";
     }
     if (mods & (MOD_LCTL | MOD_RCTL)) {
-        strcat(widget->state.active_mods, "CTRL\n");
+        widget->state.active_mods[1] = "CTRL ";r
     } else {
-        strcat(widget->state.active_mods, " \n");
+        widget->state.active_mods[1] = "    ";
     }
     if (mods & (MOD_LGUI | MOD_RGUI)) {
-        strcat(widget->state.active_mods, "GUI\n");
+        widget->state.active_mods[2] = " GUI ";
     } else {
-        strcat(widget->state.active_mods, " \n");
+        widget->state.active_mods[2] = "   ";
     }
     if (mods & (MOD_LALT | MOD_RALT)) {
-        strcat(widget->state.active_mods, "ALT");
+        widget->state.active_mods[3] = " ALT ";
     } else {
-        strcat(widget->state.active_mods, " ");
+        widget->state.active_mods[3] = "   ";
     }
     draw_canvas(widget->obj, widget->cbuf, &widget->state);
 }
@@ -185,6 +213,8 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_obj_t *canvas = lv_canvas_create(widget->obj);
     lv_obj_align(canvas, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_canvas_set_buffer(canvas, widget->cbuf, CANVAS_HEIGHT, CANVAS_HEIGHT, LV_IMG_CF_TRUE_COLOR);
+    // Fill the canvas background (optional, for visibility)
+    lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
 
     sys_slist_append(&widgets, &widget->node);
     widget_battery_init();
