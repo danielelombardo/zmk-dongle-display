@@ -171,7 +171,7 @@ void modifiers_update_cb(uint8_t state) {
 }
 
 static uint8_t modifiers_get_state(const zmk_event_t *eh) {
-    return zmk_hid_get_explicit_mods()
+    return zmk_hid_get_explicit_mods();
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_modifiers, uint8_t, modifiers_update_cb, modifiers_get_state)
