@@ -29,16 +29,16 @@ static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 const uint8_t MODS_KEYS[] = { (MOD_LSFT | MOD_RSFT), (MOD_LCTL | MOD_RCTL), (MOD_LGUI | MOD_RGUI), (MOD_LALT | MOD_RALT) };
 #if IS_ENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
-    const char MODS_BITES[7][4] = { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"};
-    const char MODS_EMPTY[7][4] = { " \n", " \n", " \n", " "};
+    const *char MODS_BITES[4] = { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"};
+    const *char MODS_EMPTY[4] = { " \n", " \n", " \n", " "};
 #else
-    const char MODS_BITES[7][4] = { "SHIFT ", "CTRL  ", "GUI   ", "ALT"};
-    const char MODS_EMPTY[7][4] = { "      ", "      ", "      ", "   "};
+    const *char MODS_BITES[4] = { "SHIFT ", "CTRL  ", "GUI   ", "ALT"};
+    const *char MODS_EMPTY[4] = { "      ", "      ", "      ", "   "};
 #endif
 
 struct status_state {
-    char batteries[ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
-    char top_layer[12] = "\0";
+    char batteries [ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
+    char top_layer [12] = {};
     uint8_t active_mods;
 };
 
