@@ -77,21 +77,21 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
         lv_canvas_draw_text(canvas, 0, 7, CANVAS_WIDTH, &layer_label, state->top_layer);
     
         init_label_dsc(&batteries_label, LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
-        lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, &batteries_text);
+        lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, batteries_text);
 
     } else {
         init_label_dsc(&layer_label, LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_RIGHT);
         lv_canvas_draw_text(canvas, 1, 2, CANVAS_WIDTH / 2 - 4, &layer_label, state->top_layer);
     
         init_label_dsc(&batteries_label, LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_LEFT);
-        lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, &batteries_text);
+        lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, batteries_text);
     }
 
     char mods_text[33] = {};
     for (int i = 0; i < 4; i++) {
         strcat(mods_text, (state->active_mods & MODS_KEYS[i]) ? MODS_BITES[i] : MODS_EMPTY[i]);
     }
-    lv_canvas_draw_text(canvas, 0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, &mods_label, &mods_text);
+    lv_canvas_draw_text(canvas, 0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, &mods_label, mods_text);
 
     if ( ROTATION + ORIENTATION ) {
         static lv_color_t cbuf_tmp[CANVAS_HEIGHT * CANVAS_HEIGHT];
