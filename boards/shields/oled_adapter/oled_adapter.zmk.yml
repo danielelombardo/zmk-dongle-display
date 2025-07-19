@@ -1,9 +1,0 @@
-id: oled_adapter
-name: oled adapter
-type: shield
-url: https://github.com/danielelombardo/zmk-dongle-display
-exposes: [i2c_oled]
-features:
-  - display
-siblings:
-  - oled_adapter_pro_micro_128x32

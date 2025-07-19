@@ -1,5 +1,5 @@
 ---
 include:
   - board: nice_nano_v2
-    shield: key5_dongle oled_adapter_pro_micro_128x32 dongle_display
+    shield: key5_dongle oled_128x32_promicro dongle_display
     artifact-name: key5_dongle_display
