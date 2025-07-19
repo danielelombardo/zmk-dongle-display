@@ -169,7 +169,7 @@ ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 
 
 // Modifiers
-uint8_t modifiers
+uint8_t modifiers;
 
 static void set_modifiers(lv_obj_t *widget, uint8_t modifiers mods) {
     if (widget->state.active_mods != mods) {
