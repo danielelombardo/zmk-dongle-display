@@ -138,7 +138,7 @@ ZMK_SUBSCRIPTION(widget_battery, zmk_peripheral_battery_state_changed);
 
 // top layer
 static void set_layer(struct zmk_widget_screen *widget, uint8_t state) {
-    char *layer_display_name = zmk_keymap_layer_name(state)
+    char *layer_display_name = zmk_keymap_layer_name(state);
     if (layer_display_name == NULL) { sprintf(layer_display_name, "%i", state); } 
     sprintf(widget->state.top_layer, "%s", layer_display_name);
     draw_canvas(widget->obj, widget->cbuf, &widget->state);
