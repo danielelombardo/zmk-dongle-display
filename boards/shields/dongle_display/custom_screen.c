@@ -148,7 +148,7 @@ static void set_layer(struct zmk_widget_screen *widget, struct layer state) {
     else { sprintf(widget->state.top_layer, "%s", state.label); }
 }
 
-static void layer_update_cb(uint8_t state) {
+static void layer_update_cb(struct layer state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_layer(widget, state); }
 }
@@ -161,7 +161,7 @@ static struct layer layer_get_state(const zmk_event_t *eh) {
     };
 }
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_layer, uint8_t, layer_update_cb, layer_get_state)
+ZMK_DISPLAY_WIDGET_LISTENER(widget_layer, struct layer, layer_update_cb, layer_get_state)
 ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 
 
