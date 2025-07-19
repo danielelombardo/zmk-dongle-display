@@ -137,42 +137,29 @@ ZMK_SUBSCRIPTION(widget_battery, zmk_peripheral_battery_state_changed);
 
 
 // top layer
-struct layer {
-    uint8_t index;
-    const char *label;
-};
-
-static void set_layer(struct zmk_widget_screen *widget, struct layer state) {
-    if (state.label == NULL) {
-        sprintf(widget->state.top_layer, "%i", state.index);
-    } else {
-        sprintf(widget->state.top_layer, "%s", state.label);
-    }
+static void set_layer(struct zmk_widget_screen *widget, uint8_t state) {
+    char *layer_display_name = zmk_keymap_layer_name(state)
+    if (layer_display_name == NULL) { sprintf(layer_display_name, "%i", state); } 
+    sprintf(widget->state.top_layer, "%s", layer_display_name);
     draw_canvas(widget->obj, widget->cbuf, &widget->state);
 }
 
-static void layer_update_cb(struct layer state) {
+static void layer_update_cb(uint8_t state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_layer(widget, state); }
 }
 
-static struct layer layer_get_state(const zmk_event_t *eh) {
-    uint8_t index = zmk_keymap_highest_layer_active();
-    return (struct layer){
-        .index = index, 
-        .label = zmk_keymap_layer_name(index)
-    };
+static uint8_t layer_get_state(const zmk_event_t *eh) {
+    return zmk_keymap_highest_layer_active();
 }
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_layer, struct layer, layer_update_cb, layer_get_state)
+ZMK_DISPLAY_WIDGET_LISTENER(widget_layer, uint8_t, layer_update_cb, layer_get_state)
 ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 
 
 // Modifiers
-
-static void set_modifiers(lv_obj_t *widget, uint8_t mods) {
-    uint8_t mods_on_screen = widget->state.active_mods;
-    if (mods_on_screen != mods) {
+static void set_modifiers(struct zmk_widget_screen *widget, uint8_t mods) {
+    if (widget->state.active_mods != mods) {
         widget->state.active_mods = mods;
         draw_canvas(widget->obj, widget->cbuf, &widget->state);
     }
@@ -180,7 +167,7 @@ static void set_modifiers(lv_obj_t *widget, uint8_t mods) {
 
 void modifiers_update_cb(uint8_t state) {
     struct zmk_widget_screen *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_modifiers(widget->obj, state); }
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_modifiers(widget, state); }
 }
 
 static uint8_t modifiers_get_state(const zmk_event_t *eh) {
