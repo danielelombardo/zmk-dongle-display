@@ -115,6 +115,7 @@ struct battery {
 };
 
 static void set_battery(struct zmk_widget_screen *widget, struct battery state) {
+    if ( state.source >= ZMK_SPLIT_BLE_PERIPHERAL_COUNT ) { return; }
     sprintf(widget->state.batteries[state.source], "%4u %% ", state.level);
     draw_canvas(widget->obj, widget->cbuf, &widget->state);
 }
@@ -137,11 +138,14 @@ ZMK_SUBSCRIPTION(widget_battery, zmk_peripheral_battery_state_changed);
 
 
 // top layer
-static void set_layer(struct zmk_widget_screen *widget, uint8_t state) {
-    char *layer_display_name = zmk_keymap_layer_name(state);
-    if (layer_display_name == NULL) { sprintf(layer_display_name, "%i", state); } 
-    sprintf(widget->state.top_layer, "%s", layer_display_name);
-    draw_canvas(widget->obj, widget->cbuf, &widget->state);
+struct layer {
+    uint8_t index;
+    const char *label;
+};
+
+static void set_layer(struct zmk_widget_screen *widget, struct layer state) {
+    if (state.label == NULL) { sprintf(widget->state.top_layer, "%i", state.index); } 
+    else { sprintf(widget->state.top_layer, "%s", state.label); }
 }
 
 static void layer_update_cb(uint8_t state) {
@@ -149,8 +153,12 @@ static void layer_update_cb(uint8_t state) {
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_layer(widget, state); }
 }
 
-static uint8_t layer_get_state(const zmk_event_t *eh) {
-    return zmk_keymap_highest_layer_active();
+static struct layer layer_get_state(const zmk_event_t *eh) {
+    uint8_t index = zmk_keymap_highest_layer_active();
+    return (struct layer){
+        .index = index, 
+        .label = zmk_keymap_layer_name(index)
+    };
 }
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_layer, uint8_t, layer_update_cb, layer_get_state)
@@ -200,13 +208,13 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
 
 lv_obj_t *zmk_widget_screen_obj(struct zmk_widget_screen *widget) { return widget->obj; }
 
-
+static struct zmk_widget_screen screen_widget;
 lv_obj_t *zmk_display_screen() {
     lv_obj_t *screen;
     screen = lv_obj_create(NULL);
 
-    zmk_widget_screen_init(&zmk_widget_screen, screen);
-    lv_obj_align(zmk_widget_screen_obj(&zmk_widget_screen), LV_ALIGN_TOP_LEFT, 0, 0);
+    zmk_widget_screen_init(&screen_widget, screen);
+    lv_obj_align(zmk_widget_screen_obj(&screen_widget), LV_ALIGN_TOP_LEFT, 0, 0);
 
     return screen;
 }
