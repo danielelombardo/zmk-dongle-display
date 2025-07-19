@@ -169,10 +169,10 @@ ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 
 
 // Modifiers
-uint8_t modifiers;
 
 static void set_modifiers(lv_obj_t *widget, uint8_t mods) {
-    if (widget->state.active_mods != mods) {
+    uint8_t mods_on_screen = widget->state.active_mods;
+    if (mods_on_screen != mods) {
         widget->state.active_mods = mods;
         draw_canvas(widget->obj, widget->cbuf, &widget->state);
     }
