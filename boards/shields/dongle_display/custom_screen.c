@@ -27,10 +27,19 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
+const uint8_t MODS_KEYS[] = { (MOD_LSFT | MOD_RSFT), (MOD_LCTL | MOD_RCTL), (MOD_LGUI | MOD_RGUI), (MOD_LALT | MOD_RALT) }
+#if ISENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
+const char MODS_BITES[6][] = { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"}
+const char MODS_EMPTY[6][] = { " \n", " \n", " \n", " "}
+#else
+const char MODS_BITES[6][] = { "SHIFT ", "CTRL  ", "GUI   ", "ALT"}
+const char MODS_EMPTY[6][] = { "      ", "      ", "      ", "   "}
+#endif
+
 struct status_state {
     char batteries[ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
     char top_layer[12] = "\0";
-    char active_mods[4][6];
+    uint8_t active_mods;
 };
 
 struct zmk_widget_screen {
@@ -50,18 +59,18 @@ void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_f
 }
 
 static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
-    lv_obj_t *canvas = lv_obj_get_child(widget, 0);
-    
-    lv_draw_label_dsc_t layer_label;
-    lv_draw_label_dsc_t batteries_label;
-    lv_draw_label_dsc_t mods_label;
-    init_label_dsc(&mods_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
     
     char batteries_text[ZMK_SPLIT_BLE_PERIPHERAL_COUNT * 9] = {};
     for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
         strcat(batteries_text, state->batteries[i]);
     }
-    
+
+    lv_obj_t *canvas = lv_obj_get_child(widget, 0);
+    lv_draw_label_dsc_t layer_label;
+    lv_draw_label_dsc_t batteries_label;
+    lv_draw_label_dsc_t mods_label;
+
+    init_label_dsc(&mods_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
     
 #if ISENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
     init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
@@ -70,7 +79,6 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
     lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, &batteries_text);
 
-    static char separator[1] = "\n"
 #else
     init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_RIGHT);
     lv_canvas_draw_text(canvas, 1, 2, CANVAS_WIDTH / 2 - 4, &layer_label, state->top_layer);
@@ -78,13 +86,10 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_LEFT);
     lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, &batteries_text);
     
-    static char separator[1] = " "
 #endif
-    
-    char mods_text[30] = {};
+    char mods_text[33] = {};
     for (int i = 0; i < 4; i++) {
-        strcat(mods_text, state->active_mods[i]);
-        strcat(mods_text, separator)
+        strcat(mods_text, (state->active_mods & MODS_KEYS[i]) ? MODS_BITES[i] : MODS_EMPTY[i]);
     }
     lv_canvas_draw_text(canvas, 0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, &mods_label, &mods_text);
 
@@ -168,27 +173,10 @@ ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 uint8_t modifiers
 
 static void set_modifiers(lv_obj_t *widget, uint8_t modifiers mods) {
-    if (mods & (MOD_LSFT | MOD_RSFT)) {
-        widget->state.active_mods[0] = "SHIFT";
-    } else {
-        widget->state.active_mods[0] = "     ";
+    if (widget->state.active_mods != mods) {
+        widget->state.active_mods = mods;
+        draw_canvas(widget->obj, widget->cbuf, &widget->state);
     }
-    if (mods & (MOD_LCTL | MOD_RCTL)) {
-        widget->state.active_mods[1] = "CTRL ";r
-    } else {
-        widget->state.active_mods[1] = "    ";
-    }
-    if (mods & (MOD_LGUI | MOD_RGUI)) {
-        widget->state.active_mods[2] = " GUI ";
-    } else {
-        widget->state.active_mods[2] = "   ";
-    }
-    if (mods & (MOD_LALT | MOD_RALT)) {
-        widget->state.active_mods[3] = " ALT ";
-    } else {
-        widget->state.active_mods[3] = "   ";
-    }
-    draw_canvas(widget->obj, widget->cbuf, &widget->state);
 }
 
 void modifiers_update_cb(uint8_t modifiers state) {
