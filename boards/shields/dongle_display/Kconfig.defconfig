@@ -3,6 +3,20 @@
 
 if SHIELD_DONGLE_DISPLAY
 
+config I2C
+    default y
+
+config SSD1306
+    default y
+
+config DONGLE_DISPLAY_ORIGINAL_WIDTH
+    int
+    default 128
+
+config DONGLE_DISPLAY_ORIGINAL_HEIGHT
+    int
+    default 32
+    
 choice ZMK_DISPLAY_STATUS_SCREEN
     default ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
 endchoice
