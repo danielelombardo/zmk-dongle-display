@@ -28,7 +28,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 const uint8_t MODS_KEYS[] = { (MOD_LSFT | MOD_RSFT), (MOD_LCTL | MOD_RCTL), (MOD_LGUI | MOD_RGUI), (MOD_LALT | MOD_RALT) }
-#if ISENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
+#if IS_ENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
 const char MODS_BITES[6][] = { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"}
 const char MODS_EMPTY[6][] = { " \n", " \n", " \n", " "}
 #else
