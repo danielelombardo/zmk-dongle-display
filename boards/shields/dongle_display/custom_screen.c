@@ -72,40 +72,39 @@ static void draw_canvas(lv_obj_t *widget, lv_color_t cbuf[], const struct status
 
     init_label_dsc(&mods_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
     
-#if ISENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
-    init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
-    lv_canvas_draw_text(canvas, 0, 7, CANVAS_WIDTH, &layer_label, state->top_layer);
-
-    init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
-    lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, &batteries_text);
-
-#else
-    init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_RIGHT);
-    lv_canvas_draw_text(canvas, 1, 2, CANVAS_WIDTH / 2 - 4, &layer_label, state->top_layer);
-
-    init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_LEFT);
-    lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, &batteries_text);
+    if ( ROTATION ) {
+        init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
+        lv_canvas_draw_text(canvas, 0, 7, CANVAS_WIDTH, &layer_label, state->top_layer);
     
-#endif
+        init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_CENTER);
+        lv_canvas_draw_text(canvas, 0, 25, CANVAS_WIDTH, &batteries_label, &batteries_text);
+
+    } else {
+        init_label_dsc(&layer_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_RIGHT);
+        lv_canvas_draw_text(canvas, 1, 2, CANVAS_WIDTH / 2 - 4, &layer_label, state->top_layer);
+    
+        init_label_dsc(&batteries_label; LVGL_FOREGROUND, &space_mono_14, LV_TEXT_ALIGN_LEFT);
+        lv_canvas_draw_text(canvas, 1, CANVAS_WIDTH / 2 + 2, CANVAS_WIDTH / 2 - 4, &batteries_label, &batteries_text);
+    }
+
     char mods_text[33] = {};
     for (int i = 0; i < 4; i++) {
         strcat(mods_text, (state->active_mods & MODS_KEYS[i]) ? MODS_BITES[i] : MODS_EMPTY[i]);
     }
     lv_canvas_draw_text(canvas, 0, CANVAS_HEIGHT / 2, CANVAS_WIDTH, &mods_label, &mods_text);
 
-#if ISENABLED(CONFIG_DONGLE_DISPLAY_FLIP)
-    static lv_color_t cbuf_tmp[CANVAS_HEIGHT * CANVAS_HEIGHT];
-    memcpy(cbuf_tmp, cbuf, sizeof(cbuf_tmp));
-
-    lv_img_dsc_t img;
-    img.data = (void *)cbuf_tmp;
-    img.header.cf = LV_IMG_CF_TRUE_COLOR;
-    img.header.w = CANVAS_HEIGHT;
-    img.header.h = CANVAS_HEIGHT;
-    // lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
-    lv_canvas_transform(canvas, &img, ROTATION + ORIENTATION, 
-        LV_IMG_ZOOM_NONE, 0, 0, CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2, false);
-#endif
+    if ( ROTATION + ORIENTATION ) {
+        static lv_color_t cbuf_tmp[CANVAS_HEIGHT * CANVAS_HEIGHT];
+        memcpy(cbuf_tmp, cbuf, sizeof(cbuf_tmp));
+    
+        lv_img_dsc_t img;
+        img.data = (void *)cbuf_tmp;
+        img.header.cf = LV_IMG_CF_TRUE_COLOR;
+        img.header.w = CANVAS_HEIGHT;
+        img.header.h = CANVAS_HEIGHT;
+        // lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
+        lv_canvas_transform(canvas, &img, ROTATION + ORIENTATION, LV_IMG_ZOOM_NONE, 0, 0, CANVAS_HEIGHT / 2, CANVAS_HEIGHT / 2, false);
+    }
 }
 
 
