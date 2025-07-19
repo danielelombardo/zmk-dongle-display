@@ -1,5 +1,13 @@
 if SHIELD_OLED_ADAPTER_PRO_MICRO_128X32
 
+config DONGLE_DISPLAY_ORIGINAL_WIDTH
+    int
+    default 128
+
+config DONGLE_DISPLAY_ORIGINAL_HEIGHT
+    int
+    default 32
+
 if ZMK_DISPLAY
 
 config I2C
