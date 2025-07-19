@@ -38,7 +38,7 @@ const uint8_t MODS_KEYS[] = { (MOD_LSFT | MOD_RSFT), (MOD_LCTL | MOD_RCTL), (MOD
 
 struct status_state {
     char batteries [ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
-    char top_layer [12] = {};
+    char top_layer[12];
     uint8_t active_mods;
 };
 
