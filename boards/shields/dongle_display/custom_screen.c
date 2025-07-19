@@ -171,23 +171,23 @@ ZMK_SUBSCRIPTION(widget_layer, zmk_layer_state_changed);
 // Modifiers
 uint8_t modifiers;
 
-static void set_modifiers(lv_obj_t *widget, uint8_t modifiers mods) {
+static void set_modifiers(lv_obj_t *widget, uint8_t mods) {
     if (widget->state.active_mods != mods) {
         widget->state.active_mods = mods;
         draw_canvas(widget->obj, widget->cbuf, &widget->state);
     }
 }
 
-void modifiers_update_cb(uint8_t modifiers state) {
+void modifiers_update_cb(uint8_t state) {
     struct zmk_widget_screen *widget;
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_modifiers(widget->obj, state); }
 }
 
-static uint8_t modifiers modifiers_get_state(const zmk_event_t *eh) {
-    return (uint8_t modifiers = zmk_hid_get_explicit_mods())
+static uint8_t modifiers_get_state(const zmk_event_t *eh) {
+    return zmk_hid_get_explicit_mods()
 }
 
-ZMK_DISPLAY_WIDGET_LISTENER(widget_modifiers, uint8_t modifiers, modifiers_update_cb, modifiers_get_state)
+ZMK_DISPLAY_WIDGET_LISTENER(widget_modifiers, uint8_t, modifiers_update_cb, modifiers_get_state)
 ZMK_SUBSCRIPTION(widget_modifiers, zmk_keycode_state_changed);
 
 
