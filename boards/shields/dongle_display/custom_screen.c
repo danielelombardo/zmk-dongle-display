@@ -28,10 +28,13 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
 const uint8_t MODS_KEYS[] = { (MOD_LSFT | MOD_RSFT), (MOD_LCTL | MOD_RCTL), (MOD_LGUI | MOD_RGUI), (MOD_LALT | MOD_RALT) };
-const char* const MODS_BITES[] = IS_ENABLED(CONFIG_DONGLE_DISPLAY_ROTATE) ? \
-    { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"} : { "SHIFT ", "CTRL  ", "GUI   ", "ALT"} ;
-const char* const MODS_EMPTY[] = IS_ENABLED(CONFIG_DONGLE_DISPLAY_ROTATE) ? \
-    { " \n", " \n", " \n", " "} : { "      ", "      ", "      ", "   "} ;
+#if IS_ENABLED(CONFIG_DONGLE_DISPLAY_ROTATE)
+    const char* const MODS_BITES[] = { "SHIFT\n", "CTRL\n", "GUI\n", "ALT"} ;
+    const char* const MODS_EMPTY[] = { " \n", " \n", " \n", " "} ;
+#else
+    const char* const MODS_BITES[] = { "SHIFT ", "CTRL  ", "GUI   ", "ALT"} ;
+    const char* const MODS_EMPTY[] =  { "      ", "      ", "      ", "   "} ;
+#endif
 
 struct status_state {
     char batteries [ZMK_SPLIT_BLE_PERIPHERAL_COUNT][9];
