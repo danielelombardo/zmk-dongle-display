@@ -54,9 +54,9 @@ static void update_status_label(lv_obj_t *label) {
     const char *layer_name = zmk_keymap_layer_name(layer_index);
     char layer_label[sizeof(layer_name) + 5];
     if (layer_name != NULL) {
-        snprintf(layer_label, sizeof(layer_name), "%s", layer_name);
+        snprintf(layer_label, sizeof(layer_label), "%s", layer_name);
     } else {
-        snprintf(layer_label, sizeof(layer_index), "-%d-", layer_index);
+        snprintf(layer_label, sizeof(layer_label), "-%d-", layer_index);
     }
 
     // 3. Get Modifiers
