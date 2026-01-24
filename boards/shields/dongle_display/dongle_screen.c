@@ -33,14 +33,15 @@ static void update_status_label(lv_obj_t *label) {
     // 1. Get Peripheral Batteries (from what has been sent to Central)
     char batteries[6*ZMK_SPLIT_BLE_PERIPHERAL_COUNT+6]; 
     int offset = 0;
+    int written = 0;
     uint8_t level;
     for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
         // snprintf returns the number of characters that *would* have been written
         int rc = zmk_split_central_get_peripheral_battery_level(i, &level);
         if (rc == 0) {
-            int written = snprintf(batteries + offset, sizeof(batteries) - offset, "%3d%% ", level);
+            written = snprintf(batteries + offset, sizeof(batteries) - offset, "%3d%% ", level);
         } else {
-            int written = snprintf(batteries + offset, sizeof(batteries) - offset, "..."); 
+            written = snprintf(batteries + offset, sizeof(batteries) - offset, "..."); 
         }
         // Update the offset to point to the end of the new string
         offset += written;
