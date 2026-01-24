@@ -56,7 +56,7 @@ static void update_status_label(lv_obj_t *label) {
     if (layer_name != NULL) {
         snprintf(layer_label, sizeof(layer_name), "%s", layer_name);
     } else {
-        snprintf(layer_label, sizeof(layer_index), "-%i-", layer_index);
+        snprintf(layer_label, sizeof(layer_index), "-%d-", layer_index);
     }
 
     // 3. Get Modifiers
