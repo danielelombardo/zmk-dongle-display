@@ -9,7 +9,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/event_manager.h>
 #include <zmk/events/layer_state_changed.h>
 #include <zmk/events/battery_state_changed.h>
-#include <zmk/events/caps_word_state_changed.h>
 #include <zmk/events/modifiers_state_changed.h>
 #include <zmk/keymap.h>
 #include <zmk/hid.h>
