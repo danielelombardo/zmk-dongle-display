@@ -61,7 +61,7 @@ static void update_status_label(lv_obj_t *label) {
 
     // 3. Get Modifiers
     zmk_mod_flags_t mods = zmk_hid_get_explicit_mods();
-    bool shift = mods & (MOD_LSFT | MOD_RSFT),
+    bool shift = mods & (MOD_LSFT | MOD_RSFT);
     bool ctrl  = mods & (MOD_LCTL | MOD_RCTL);
     bool alt   = mods & (MOD_LALT | MOD_RALT);
     bool gui   = mods & (MOD_LGUI | MOD_RGUI);
